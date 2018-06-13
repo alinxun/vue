@@ -37,7 +37,7 @@ export default function (Vue) {
    */
 
   Vue.options = {
-    directives,
+    directives,//
     elementDirectives,
     filters,
     transitions: {},
