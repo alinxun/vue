@@ -18,7 +18,7 @@ import {
 } from '../util/index'
 
 export function initGlobalAPI (Vue: GlobalAPI) {
-  // config
+  // config 添加一个只读的config
   const configDef = {}
   configDef.get = () => config
   if (process.env.NODE_ENV !== 'production') {
@@ -52,11 +52,31 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // this is used to identify the "base" constructor to extend all plain-object
   // components with in Weex's multi-instance scenarios.
   Vue.options._base = Vue
+   
 
+  /**
+   * 将 builtInComponents 的属性混合到 Vue.options.components 中
+   */
   extend(Vue.options.components, builtInComponents)
 
+  /**
+     * components:Object.create(null)
+     * directives:Object.create(null)
+     * filters:Object.create(null)
+     * _base:Vue
+     * components:{
+     *    KeepAlive
+     * }
+     */
+
   initUse(Vue)
+  //Vue.use
   initMixin(Vue)
+  //Vue.mixin
   initExtend(Vue)
+  //Vue.extend
   initAssetRegisters(Vue)
+  //Vue.component
+  //Vue.directive
+  //Vue.filter
 }

@@ -20,6 +20,7 @@ import platformDirectives from './directives/index'
 import platformComponents from './components/index'
 
 // install platform specific utils
+// 安装平台特定的工具方法
 Vue.config.mustUseProp = mustUseProp
 Vue.config.isReservedTag = isReservedTag
 Vue.config.isReservedAttr = isReservedAttr
@@ -29,6 +30,21 @@ Vue.config.isUnknownElement = isUnknownElement
 // install platform runtime directives & components
 extend(Vue.options.directives, platformDirectives)
 extend(Vue.options.components, platformComponents)
+/**
+ * Vue.options = {
+	components: {
+		KeepAlive,
+		Transition,
+		TransitionGroup
+	},
+	directives: {
+		model,
+		show
+	},
+	filters: Object.create(null),
+	_base: Vue
+}
+ */
 
 // install platform patch function
 Vue.prototype.__patch__ = inBrowser ? patch : noop

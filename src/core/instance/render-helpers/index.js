@@ -11,6 +11,10 @@ import { renderStatic, markOnce } from './render-static'
 import { bindObjectListeners } from './bind-object-listeners'
 import { resolveScopedSlots } from './resolve-slots'
 
+/**
+ * 在Vue.prototype 上添加一系列方法
+ * @param {*} target 
+ */
 export function installRenderHelpers (target: any) {
   target._o = markOnce
   target._n = toNumber

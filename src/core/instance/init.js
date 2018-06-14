@@ -13,6 +13,7 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
+  //在原型上添加 _init初始化方法
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // a uid
@@ -21,13 +22,14 @@ export function initMixin (Vue: Class<Component>) {
     let startTag, endTag
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+      //性能追踪
       startTag = `vue-perf-start:${vm._uid}`
       endTag = `vue-perf-end:${vm._uid}`
       mark(startTag)
     }
-
+/**********    被性能追踪的部分-start     ************************** */
     // a flag to avoid this being observed
-    vm._isVue = true
+    vm._isVue = true //表示该对象是一个Vue 实例
     // merge options
     if (options && options._isComponent) {
       // optimize internal component instantiation
@@ -35,6 +37,7 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      //在Vue 实例上添加 $options 属性
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -58,8 +61,11 @@ export function initMixin (Vue: Class<Component>) {
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
 
+    /**********    被性能追踪的部分-end     ************************** */
+
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+      //性能追踪
       vm._name = formatComponentName(vm, false)
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
@@ -90,6 +96,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   }
 }
 
+// 解析构造者的options
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
   if (Ctor.super) {

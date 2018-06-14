@@ -9,12 +9,15 @@ import { query } from './util/index'
 import { compileToFunctions } from './compiler/index'
 import { shouldDecodeNewlines, shouldDecodeNewlinesForHref } from './util/compat'
 
+//根据id获取元素的innerHTML
 const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
 })
 
+//缓存$mount
 const mount = Vue.prototype.$mount
+//重写Vue.prototype.$mount 方法
 Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
@@ -95,6 +98,7 @@ function getOuterHTML (el: Element): string {
   }
 }
 
+//添加全局API
 Vue.compile = compileToFunctions
 
 export default Vue
