@@ -54,21 +54,21 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self  实例对象上添加 _self 属性，  
     vm._self = vm
-    // 
+    // 初始化生命周期
     initLifecycle(vm)
-    // 
+    // 初始化事件
     initEvents(vm)
-    // 
+    // 初始化渲染函数 
     initRender(vm)
-    // 
+    // 调用生命周期钩子函数
     callHook(vm, 'beforeCreate')
     // 
     initInjections(vm) // resolve injections before data/props
-    // 
+    //  initProps initMethods initData initComputed initWatch
     initState(vm)
     // 
     initProvide(vm) // resolve provide after data/props
-    //
+    // 调用生命周期钩子函数
     callHook(vm, 'created')
     // 
 

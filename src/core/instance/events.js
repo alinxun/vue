@@ -10,6 +10,7 @@ import {
 import { updateListeners } from '../vdom/helpers/index'
 
 export function initEvents (vm: Component) {
+  // 首先添加两属性
   vm._events = Object.create(null)
   vm._hasHookEvent = false
   // init parent attached events

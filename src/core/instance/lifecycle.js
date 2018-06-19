@@ -28,6 +28,7 @@ export function initLifecycle (vm: Component) {
   // 引用当前实例的父实例
   let parent = options.parent
   // 如果当前实例有父实列， 且不是抽象的
+  // 抽象实例的特点：  一般不渲染真实dom  下面的判断，抽象实例不会被添加到父实例的$children中
   if (parent && !options.abstract) {
     //查找第一个非抽象的父组件
     while (parent.$options.abstract && parent.$parent) {
@@ -321,6 +322,7 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
 
 export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
+  // 与尾部的popTarget() 呼应，避免在欧协生命周期钩子中使用props数据导致收集冗余的依赖
   pushTarget()
   const handlers = vm.$options[hook]
   if (handlers) {
