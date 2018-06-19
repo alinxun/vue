@@ -14,6 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
   )
 
   const warnNonPresent = (target, key) => {
+    // 在渲染的时候引用了 key，但是在实例对象上并没有定义 key 这个属性或方法
     warn(
       `Property or method "${key}" is not defined on the instance but ` +
       'referenced during render. Make sure that this property is reactive, ' +
@@ -44,7 +45,9 @@ if (process.env.NODE_ENV !== 'production') {
 
   const hasHandler = {
     has (target, key) {
+      // has 变量是真实经过 in 运算符的来的结果
       const has = key in target
+      // 如果 key 在 allowedGlobals之内，或者key 以 下划线 _ 开头的字符串 则为真 
       const isAllowed = allowedGlobals(key) || (typeof key === 'string' && key.charAt(0) === '_')
       if (!has && !isAllowed) {
         warnNonPresent(target, key)
@@ -62,7 +65,12 @@ if (process.env.NODE_ENV !== 'production') {
     }
   }
 
+  // 非生产环境 才对 initProxy 赋值
+  /**
+   * vm  Vue的实例对象
+   */
   initProxy = function initProxy (vm) {
+    // hasProxy 判断宿主环境是否支持原生的 Proxy 
     if (hasProxy) {
       // determine which proxy handler to use
       const options = vm.$options
@@ -70,6 +78,7 @@ if (process.env.NODE_ENV !== 'production') {
         ? getHandler
         : hasHandler
       vm._renderProxy = new Proxy(vm, handlers)
+      // 代理是通过原生 Proxy 实现
     } else {
       vm._renderProxy = vm
     }

@@ -37,7 +37,8 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
-      //在Vue 实例上添加 $options 属性
+      // 在Vue 实例上添加 $options 属性
+      // 做一系列初始化工作的最终选项
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -46,20 +47,30 @@ export function initMixin (Vue: Class<Component>) {
     }
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
+      // 目的：设置渲染函数的作用域代理， 提供更好的提示信息
       initProxy(vm)
     } else {
       vm._renderProxy = vm
     }
-    // expose real self
+    // expose real self  实例对象上添加 _self 属性，  
     vm._self = vm
+    // 
     initLifecycle(vm)
+    // 
     initEvents(vm)
+    // 
     initRender(vm)
+    // 
     callHook(vm, 'beforeCreate')
+    // 
     initInjections(vm) // resolve injections before data/props
+    // 
     initState(vm)
+    // 
     initProvide(vm) // resolve provide after data/props
+    //
     callHook(vm, 'created')
+    // 
 
     /**********    被性能追踪的部分-end     ************************** */
 

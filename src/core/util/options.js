@@ -134,33 +134,35 @@ strats.data = function (
 
 /**
  * Hooks and props are merged as arrays.
+ * 钩子函数的合并策略
  */
 function mergeHook (
   parentVal: ?Array<Function>,
   childVal: ?Function | ?Array<Function>
 ): ?Array<Function> {
   return childVal
-    ? parentVal
-      ? parentVal.concat(childVal)
-      : Array.isArray(childVal)
-        ? childVal
-        : [childVal]
-    : parentVal
+    ? parentVal//如果有childVal 则判断是否有parentVal
+      ? parentVal.concat(childVal)//如果有parentVal 则将二者合并成一个数组
+      : Array.isArray(childVal)// 没有则判断 childVal是不是一个数组
+        ? childVal//是数组，直接返回
+        : [childVal]//否则将其作为数组的元素返回
+    : parentVal// 如果没有 childVal则直接返回parentVal
 }
 
 LIFECYCLE_HOOKS.forEach(hook => {
   strats[hook] = mergeHook
+  //生命周期的钩子函数 是可以写成数组的
 })
 
 /**
  * Assets
- *
+ * 资源选项的合并策略  dirctives filters components
  * When a vm is present (instance creation), we need to do
  * a three-way merge between constructor options, instance
  * options and parent options.
  */
 function mergeAssets (
-  parentVal: ?Object,
+  parentVal: ?Object,// 原型创建对象res
   childVal: ?Object,
   vm?: Component,
   key: string
@@ -168,7 +170,7 @@ function mergeAssets (
   const res = Object.create(parentVal || null)
   if (childVal) {
     process.env.NODE_ENV !== 'production' && assertObjectType(key, childVal, vm)
-    return extend(res, childVal)
+    return extend(res, childVal) // 将childVal上的属性混合到res对象上并返回
   } else {
     return res
   }
@@ -180,7 +182,7 @@ ASSET_TYPES.forEach(function (type) {
 
 /**
  * Watchers.
- *
+ * 选项 watch 的合并策略
  * Watchers hashes should not overwrite one
  * another, so we merge them as arrays.
  */
@@ -191,31 +193,36 @@ strats.watch = function (
   key: string
 ): ?Object {
   // work around Firefox's Object.prototype.watch...
-  if (parentVal === nativeWatch) parentVal = undefined
-  if (childVal === nativeWatch) childVal = undefined
+  if (parentVal === nativeWatch) parentVal = undefined  // Firefox 浏览器中Object.prototype 拥有原生的watch
+  if (childVal === nativeWatch) childVal = undefined // 同理， 将原生watch 重置为 undefined
   /* istanbul ignore if */
   if (!childVal) return Object.create(parentVal || null)
   if (process.env.NODE_ENV !== 'production') {
     assertObjectType(key, childVal, vm)
   }
   if (!parentVal) return childVal
+
+  // childVal && parentVal 
   const ret = {}
+  // 将parentVal 的属性混合到ret 中 后面处理的都是ret 最后返回的也是 ret 
   extend(ret, parentVal)
+  // 遍历 childVal
   for (const key in childVal) {
-    let parent = ret[key]
+    let parent = ret[key] // 不一定有值
     const child = childVal[key]
     if (parent && !Array.isArray(parent)) {
-      parent = [parent]
+      parent = [parent] //如果存在就将其转换成数组
     }
     ret[key] = parent
-      ? parent.concat(child)
-      : Array.isArray(child) ? child : [child]
+      ? parent.concat(child) // 如果parent 存在 就将child concat 进去
+      : Array.isArray(child) ? child : [child] // 将child 转为数组
   }
   return ret
 }
 
 /**
  * Other object hashes.
+ * props methods inject computed 的合并策略
  */
 strats.props =
 strats.methods =
@@ -230,11 +237,16 @@ strats.computed = function (
     assertObjectType(key, childVal, vm)
   }
   if (!parentVal) return childVal
+
+  // 如果parentVal 存在 创建ret对象，然后分别将parentVal 和 childVal 的 属性混合到ret中，childVal 覆盖parentVal 同名属性
+  // 
   const ret = Object.create(null)
   extend(ret, parentVal)
   if (childVal) extend(ret, childVal)
   return ret
 }
+
+// provide 的合并策略 与data选项的合并策略相同
 strats.provide = mergeDataOrFn
 
 /**

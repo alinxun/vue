@@ -25,15 +25,21 @@ export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
+  // 引用当前实例的父实例
   let parent = options.parent
+  // 如果当前实例有父实列， 且不是抽象的
   if (parent && !options.abstract) {
+    //查找第一个非抽象的父组件
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+    //将它当作当前实例的父级， 所以将当前实例 vm 添加到 父级的$children 属性里
     parent.$children.push(vm)
   }
 
+  // 设置当前实例的 $parent 属性，指向父级
   vm.$parent = parent
+  // 设置当前实例的 $root 属性，有父级就用父级的 $root 没有就用指向自身
   vm.$root = parent ? parent.$root : vm
 
   vm.$children = []
