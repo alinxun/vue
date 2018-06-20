@@ -39,13 +39,19 @@ export class Observer {
   dep: Dep;
   vmCount: number; // number of vms that has this object as root $data
 
+  // 三个实例， 两个方法
+
+  // 构造函数
   constructor (value: any) {
     this.value = value
-    this.dep = new Dep()
+    this.dep = new Dep() // 收集依赖的“框”
     this.vmCount = 0
-    def(value, '__ob__', this)
+    // def 函数 是 Object.definePrototype 函数的简单封装
+    def(value, '__ob__', this) // 为数据对象定义一个__ob__属性 属性的值是当前 Observer 实例对象
+
+    // 区分数据对象到底是数组还是一个纯对象
     if (Array.isArray(value)) {
-      const augment = hasProto
+      const augment = hasProto  // 是否支持使用 __proto__ 属性
         ? protoAugment
         : copyAugment
       augment(value, arrayMethods, arrayKeys)
@@ -105,31 +111,44 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * Attempt to create an observer instance for a value,
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
+ * {value} 要观察的数据
+ * {asRootData} 被观察的数据是否是根级数据
  */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
+  // 如果要观测的数据不是一个对象或者是 VNode 实例，直接return 
   if (!isObject(value) || value instanceof VNode) {
     return
   }
+
+  // 定义变量ob 保存Observer 实例
   let ob: Observer | void
+  // 数据对象value自身是否含有 __ob__ 属性， 并且 __ob__ 属性是否是 Observer 的实例
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else if (
+    // 是否对数据进行观测的开关
     shouldObserve &&
-    !isServerRendering() &&
+    // 是否服务端渲染
+    !isServerRendering() &&  
     (Array.isArray(value) || isPlainObject(value)) &&
+    // 判断对象是否是可扩展的
     Object.isExtensible(value) &&
+    // _isVue 属性可以用来规避 Vue 实例对象被观测
     !value._isVue
   ) {
+    // 满足上面五项 创建一个 Observer 实例
     ob = new Observer(value)
   }
   if (asRootData && ob) {
     ob.vmCount++
   }
+  // 当一个数据对象被观测之后将会在该对象上定义 __ob__ 属性
   return ob
 }
 
 /**
  * Define a reactive property on an Object.
+ * 将数据对象的数据属性转换成访问器属性，即为数据对象的属性设置一对getter/setter 
  */
 export function defineReactive (
   obj: Object,
@@ -138,14 +157,17 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
-  const dep = new Dep()
+  const dep = new Dep() //  收集的依赖的出发时机是: 当属性值被修改时触发
 
+  // Object.getOwnPropertyDescriptor 获取该字段可能已有的属性描述对象
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
   }
+  // 一个不可配置的属性是不能使用也没有必要使用 Object.defineProperty 改变其属性定义的
 
   // cater for pre-defined getter/setters
+  // 缓存原有get set 
   const getter = property && property.get
   const setter = property && property.set
   if ((!getter || setter) && arguments.length === 2) {
@@ -153,11 +175,13 @@ export function defineReactive (
   }
 
   let childOb = !shallow && observe(val)
+  // childOb.dep  依赖的触发时机： 使用$set or Vue.set 给数据对象添加新属性时触发
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
+      // if 代码块，完成收集依赖
       if (Dep.target) {
         dep.depend()
         if (childOb) {
@@ -172,6 +196,7 @@ export function defineReactive (
     set: function reactiveSetter (newVal) {
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */
+      // newVal !== newVal && value !== value    NaN
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }
