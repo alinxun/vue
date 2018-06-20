@@ -58,6 +58,7 @@ export function initState (vm: Component) {
   }
   if (opts.computed) initComputed(vm, opts.computed)
   if (opts.watch && opts.watch !== nativeWatch) {
+    // firefox  原生提供Object.prototype.watch 函数
     initWatch(vm, opts.watch)
   }
 }
